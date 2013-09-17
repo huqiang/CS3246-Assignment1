@@ -13,9 +13,9 @@ from org.apache.lucene.index import FieldInfo, IndexWriter, IndexWriterConfig
 from org.apache.lucene.store import SimpleFSDirectory
 from org.apache.lucene.util import Version
 import org.apache.lucene.search.similarities as similarities
-"""
-"""
 
+from HTMLDocument import HTMLDocument
+from HTMLDocumentParser import HTMLDocumentParser
 
 class Indexer(object):
     """Usage:   python IndexFiles <doc_directory>
@@ -57,14 +57,32 @@ class Indexer(object):
         for root, dirnames, filenames in os.walk(root):
             for filename in filenames:
                 print "adding", filename
+                doc_parser = HTMLDocumentParser()
                 try:
-                    path     = os.path.join(root, filename)
-                    file     = open(path)
+                    path = os.path.join(root, filename)
+                    file = open(path)
                     contents = unicode(file.read(), 'iso-8859-1')
+                    doc_parser.feed(contents)
+                    html_doc = HTMLDocument(doc_parser.contents)
+
+                    print '=============='
+                    print 'Title: ' + html_doc.title
+                    print 'Description: ' + html_doc.description
+                    print 'Month: ' + html_doc.month
+                    print 'Year: ' + html_doc.year
+                    print 'Authors: ' + str(html_doc.authors)
+                    print 'Keywords: ' + str(html_doc.keywords)
+                    print 'Timestamp: ' + str(html_doc.timestamp)
+                    print ' '
+
                     file.close()
-                    doc      = Document()
+
+                    doc = Document()
                     doc.add(Field("name", filename, t1))
                     doc.add(Field("path", root, t1))
+                    
+                    # TODO: Add extracted properties to doc object
+
                     if len(contents) > 0:
                         doc.add(Field("contents", contents, t2))
                     else:
