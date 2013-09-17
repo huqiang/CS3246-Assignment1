@@ -12,7 +12,7 @@ from org.apache.lucene.document import Document, Field, FieldType
 from org.apache.lucene.index import FieldInfo, IndexWriter, IndexWriterConfig
 from org.apache.lucene.store import SimpleFSDirectory
 from org.apache.lucene.util import Version
-
+import org.apache.lucene.search.similarities as similarities
 """
 """
 
@@ -26,11 +26,13 @@ class Indexer(object):
         if not os.path.exists(storeDir):
             os.mkdir(storeDir)
 
-        store = SimpleFSDirectory(File(storeDir))
+        store    = SimpleFSDirectory(File(storeDir))
         analyzer = LimitTokenCountAnalyzer(analyzer, 1048576)
-        config = IndexWriterConfig(Version.LUCENE_CURRENT, analyzer)
+        config   = IndexWriterConfig(Version.LUCENE_CURRENT, analyzer)
+        config.setSimilarity(similarities.BM25Similarity())
+    #Available similarity: BM25Similarity, MultiSimilarity, PerFieldSimilarityWrapper, SimilarityBase, TFIDFSimilarity
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE)
-        writer = IndexWriter(store, config)
+        writer   = IndexWriter(store, config)
 
         self.indexDocs(fileRoot, writer)
         print 'commit index',
@@ -56,11 +58,11 @@ class Indexer(object):
             for filename in filenames:
                 print "adding", filename
                 try:
-                    path = os.path.join(root, filename)
-                    file = open(path)
+                    path     = os.path.join(root, filename)
+                    file     = open(path)
                     contents = unicode(file.read(), 'iso-8859-1')
                     file.close()
-                    doc = Document()
+                    doc      = Document()
                     doc.add(Field("name", filename, t1))
                     doc.add(Field("path", root, t1))
                     if len(contents) > 0:
