@@ -14,29 +14,14 @@ from org.apache.lucene.store import SimpleFSDirectory
 from org.apache.lucene.util import Version
 
 """
-This class is loosely based on the Lucene (java implementation) demo class 
-org.apache.lucene.demo.IndexFiles.  It will take a directory as an argument
-and will index all of the files in that directory and downward recursively.
-It will index on the file path, the file name and the file contents.  The
-resulting Lucene index will be placed in the current directory and called
-'index'.
 """
 
-class Ticker(object):
 
-    def __init__(self):
-        self.tick = True
+class Indexer(object):
+    """Usage:   python IndexFiles <doc_directory>
+    """
 
-    def run(self):
-        while self.tick:
-            sys.stdout.write('.')
-            sys.stdout.flush()
-            time.sleep(1.0)
-
-class IndexFiles(object):
-    """Usage: python IndexFiles <doc_directory>"""
-
-    def __init__(self, root, storeDir, analyzer):
+    def __init__(self, fileRoot, storeDir, analyzer):
 
         if not os.path.exists(storeDir):
             os.mkdir(storeDir)
@@ -47,13 +32,10 @@ class IndexFiles(object):
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE)
         writer = IndexWriter(store, config)
 
-        self.indexDocs(root, writer)
-        ticker = Ticker()
+        self.indexDocs(fileRoot, writer)
         print 'commit index',
-        threading.Thread(target=ticker.run).start()
         writer.commit()
         writer.close()
-        ticker.tick = False
         print 'done'
 
     def indexDocs(self, root, writer):
@@ -72,8 +54,6 @@ class IndexFiles(object):
         
         for root, dirnames, filenames in os.walk(root):
             for filename in filenames:
-                # if not filename.endswith('.txt'):
-                    # continue
                 print "adding", filename
                 try:
                     path = os.path.join(root, filename)
@@ -100,7 +80,7 @@ if __name__ == '__main__':
     start = datetime.now()
     try:
         base_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
-        IndexFiles(sys.argv[1], os.path.join(base_dir, INDEX_DIR),
+        Indexer(sys.argv[1], os.path.join(base_dir, INDEX_DIR),
                    StandardAnalyzer(Version.LUCENE_CURRENT))
         end = datetime.now()
         print end - start
