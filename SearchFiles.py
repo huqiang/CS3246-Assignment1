@@ -3,7 +3,7 @@
 INDEX_DIR = "IndexFiles.index"
 
 import sys, os, lucene
-
+from Tkinter import *
 from java.io import File
 from org.apache.lucene.analysis.standard import StandardAnalyzer
 from org.apache.lucene.index import DirectoryReader
@@ -17,32 +17,39 @@ import QueryFileParser
 import RelevanceFileParser
 
 def perform_user_query(searcher, analyzer):
-    while True:
-        print
-        print "Hit enter with no input to quit."
-        command = raw_input("Query: ")
-        if command == '':
-            return
+    root = Tk()
 
-        print
-        print "Searching for: ", command
-        query = QueryParser(Version.LUCENE_CURRENT, "title", analyzer).parse(command)
+    w = Label(root, text="Enter your search terms in the box below")
+    w.pack()
+
+    e = Entry(root)
+    e.pack()
+
+    def search():
+        search_terms = e.get()
+        print "Searching for: ", search_terms
+        query = QueryParser(Version.LUCENE_CURRENT, "title", analyzer).parse(search_terms)
         hits = searcher.search(query, 50).scoreDocs
         print "%s total matching documents." % len(hits)
 
         rank = 1
         for hit in hits:
             doc = searcher.doc(hit.doc)
-            detailed_format = False
+            detailed_format = True
             if detailed_format:
                 print 'Rank: ', rank
-                print 'Path: ' + doc.get("path") + doc.get("filename")
+                print 'File: ', doc.get("filename")
                 print 'Score: ', hit.score
                 print 'Title: ', doc.get("title")
                 print 'Synopsis: ', doc.get("description")[:200] + '...' , '\n'
             else:
                 print rank, doc.get("filename"), doc.get("title")
             rank += 1
+
+    b = Button(root, text="Search", width=10, command=search)
+    b.pack()
+
+    root.mainloop()
 
 def results_comparison(searcher, analyzer, query_file):
     query_data = QueryFileParser.parse_query_file(query_file)
@@ -89,4 +96,3 @@ if __name__ == '__main__':
         # search_query_from_file(searcher, analyzer, sys.argv[1])
     # perform_user_query(searcher, analyzer)
         results_comparison(searcher, analyzer, sys.argv[1])
-    del searcher
