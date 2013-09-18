@@ -17,20 +17,26 @@ def run(searcher, analyzer):
     while True:
         print
         print "Hit enter with no input to quit."
-        command = raw_input("Query:")
+        command = raw_input("Query: ")
         if command == '':
             return
 
         print
-        print "Searching for:", command
-        query = QueryParser(Version.LUCENE_CURRENT, "contents",
-                            analyzer).parse(command)
-        scoreDocs = searcher.search(query, 10).scoreDocs
+        print "Searching for: ", command
+        query = QueryParser(Version.LUCENE_CURRENT, "title", analyzer).parse(command)
+        hits = searcher.search(query, 10).scoreDocs
         print "%s total matching documents." % len(scoreDocs)
 
-        for scoreDoc in scoreDocs:
-            doc = searcher.doc(scoreDoc.doc)
-            print 'path:', doc.get("path"), 'name:', doc.get("name"), scoreDoc.score
+        rank = 1
+        for hit in hits:
+            doc = searcher.doc(hit.doc)
+            print 'Rank: ', rank
+            print 'Path: ' + doc.get("path") + doc.get("filename")
+            print 'Score: ', scoreDoc.score
+            print 'Title: ', doc.get("title")
+            print 'Synopsis: ', doc.get("description")[:200] + '...' , '\n'
+            rank += 1
+
 
 
 if __name__ == '__main__':
@@ -39,7 +45,6 @@ if __name__ == '__main__':
     base_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
     directory = SimpleFSDirectory(File(os.path.join(base_dir, INDEX_DIR)))
     searcher = IndexSearcher(DirectoryReader.open(directory))
-    
     searcher.setSimilarity(similarities.BM25Similarity())
     #Available similarity: BM25Similarity, MultiSimilarity, PerFieldSimilarityWrapper, SimilarityBase, TFIDFSimilarity
     analyzer = StandardAnalyzer(Version.LUCENE_CURRENT)
