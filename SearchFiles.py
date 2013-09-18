@@ -25,7 +25,7 @@ def run(searcher, analyzer):
         print "Searching for: ", command
         query = QueryParser(Version.LUCENE_CURRENT, "title", analyzer).parse(command)
         hits = searcher.search(query, 10).scoreDocs
-        print "%s total matching documents." % len(scoreDocs)
+        print "%s total matching documents." % len(hits)
 
         rank = 1
         for hit in hits:
