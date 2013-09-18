@@ -30,11 +30,15 @@ def run(searcher, analyzer):
         rank = 1
         for hit in hits:
             doc = searcher.doc(hit.doc)
-            print 'Rank: ', rank
-            print 'Path: ' + doc.get("path") + doc.get("filename")
-            print 'Score: ', scoreDoc.score
-            print 'Title: ', doc.get("title")
-            print 'Synopsis: ', doc.get("description")[:200] + '...' , '\n'
+            detailed_format = False
+            if detailed_format:
+                print 'Rank: ', rank
+                print 'Path: ' + doc.get("path") + doc.get("filename")
+                print 'Score: ', hit.score
+                print 'Title: ', doc.get("title")
+                print 'Synopsis: ', doc.get("description")[:200] + '...' , '\n'
+            else:
+                print rank, doc.get("filename"), doc.get("title")
             rank += 1
 
 

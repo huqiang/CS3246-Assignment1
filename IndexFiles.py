@@ -140,15 +140,15 @@ class Indexer(object):
                     field_timestamp.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS)        
                     doc.add(Field("timestamp", html_doc.timestamp, field_timestamp))
 
-                    if len(contents) > 0:
-                        field_source = FieldType()
-                        field_source.setIndexed(True)
-                        field_source.setStored(False)
-                        field_source.setTokenized(True)
-                        field_source.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS_AND_POSITIONS) 
-                        doc.add(Field("contents", contents, field_source))
-                    else:
-                        print "warning: no content in %s" % filename
+                    # if len(contents) > 0:
+                    #     field_source = FieldType()
+                    #     field_source.setIndexed(True)
+                    #     field_source.setStored(False)
+                    #     field_source.setTokenized(True)
+                    #     field_source.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS_AND_POSITIONS) 
+                    #     doc.add(Field("contents", contents, field_source))
+                    # else:
+                    #     print "warning: no content in %s" % filename
                     writer.addDocument(doc)
                 except Exception, e:
                     print "Failed in indexDocs:", e
