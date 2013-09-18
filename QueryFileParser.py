@@ -2,9 +2,9 @@ from QueryDocumentParser import QueryDocumentParser
 
 QUERY_FILE = "CS3246Project1_query.txt"
 
-def parse_query_file():
+def parse_query_file(query_file):
 
-	file = open(QUERY_FILE)
+	file = open(query_file)
 	contents = unicode(file.read(), 'iso-8859-1')
 
 	query_parser = QueryDocumentParser()
