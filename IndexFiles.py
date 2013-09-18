@@ -78,7 +78,7 @@ class Indexer(object):
 
                     field_path = FieldType()
                     field_path.setIndexed(True)
-                    field_path.setStored(False)
+                    field_path.setStored(True)
                     field_path.setTokenized(True)
                     field_path.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS_AND_POSITIONS)
                     doc.add(Field("path", root, field_path))
@@ -90,13 +90,16 @@ class Indexer(object):
                     field_title.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS_AND_POSITIONS)        
                     doc.add(Field("title", html_doc.title, field_title))
 
+                    
+                    field_description = FieldType()
                     if html_doc.has_description():
-                        field_description = FieldType()
                         field_description.setIndexed(True)
-                        field_description.setStored(True)
-                        field_description.setTokenized(True)
-                        field_description.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS_AND_POSITIONS)        
-                        doc.add(Field("description", html_doc.description, field_description))
+                    else:
+                        field_description.setIndexed(True)
+                    field_description.setStored(True)
+                    field_description.setTokenized(True)
+                    field_description.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS_AND_POSITIONS)        
+                    doc.add(Field("description", html_doc.description, field_description))
 
                     field_month = FieldType()
                     field_month.setIndexed(True)
