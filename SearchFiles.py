@@ -70,6 +70,6 @@ if __name__ == '__main__':
     searcher.setSimilarity(similarities.BM25Similarity())
     #Available similarity: BM25Similarity, MultiSimilarity, PerFieldSimilarityWrapper, SimilarityBase, TFIDFSimilarity
     analyzer = StandardAnalyzer(Version.LUCENE_CURRENT)
-    # perform_user_query(searcher, analyzer)
-    results_comparison(searcher, analyzer)
+    perform_user_query(searcher, analyzer)
+    # results_comparison(searcher, analyzer)
     del searcher
