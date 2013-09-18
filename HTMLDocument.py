@@ -61,17 +61,17 @@ class HTMLDocument(object):
 		while prop_list[curr_prop_index][0][0:2] != 'CA':
 			curr_prop_index += 1
 
-		self.timestamp = prop_list[curr_prop_index]
+		self.timestamp = prop_list[curr_prop_index][0]
 
 		self.contents_array = prop_list
 
-	def has_description():
+	def has_description(self):
 		return self.description == 'No description available'
 
-	def has_authors():
+	def has_authors(self):
 		return len(self.authors) > 0
 
-	def has_keywords():
+	def has_keywords(self):
 		return len(self.keywords) > 0
 
 

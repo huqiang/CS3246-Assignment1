@@ -42,18 +42,6 @@ class Indexer(object):
 
     def indexDocs(self, root, writer):
 
-        t1 = FieldType()
-        t1.setIndexed(True)
-        t1.setStored(True)
-        t1.setTokenized(False)
-        t1.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS)
-        
-        t2 = FieldType()
-        t2.setIndexed(True)
-        t2.setStored(False)
-        t2.setTokenized(True)
-        t2.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS_AND_POSITIONS)
-        
         for root, dirnames, filenames in os.walk(root):
             for filename in filenames:
                 print "adding", filename
@@ -65,26 +53,97 @@ class Indexer(object):
                     doc_parser.feed(contents)
                     html_doc = HTMLDocument(doc_parser.contents)
 
-                    print '=============='
-                    print 'Title: ' + html_doc.title
-                    print 'Description: ' + html_doc.description
-                    print 'Month: ' + html_doc.month
-                    print 'Year: ' + html_doc.year
-                    print 'Authors: ' + str(html_doc.authors)
-                    print 'Keywords: ' + str(html_doc.keywords)
-                    print 'Timestamp: ' + str(html_doc.timestamp)
-                    print ' '
+                    flag = False
+                    if flag:
+                        print '=============='
+                        print 'Title: ' + html_doc.title
+                        print 'Description: ' + html_doc.description
+                        print 'Month: ' + html_doc.month
+                        print 'Year: ' + html_doc.year
+                        print 'Authors: ' + str(html_doc.authors)
+                        print 'Keywords: ' + str(html_doc.keywords)
+                        print 'Timestamp: ' + str(html_doc.timestamp)
+                        print ' '
 
                     file.close()
 
                     doc = Document()
-                    doc.add(Field("name", filename, t1))
-                    doc.add(Field("path", root, t1))
+
+                    field_filename = FieldType()
+                    field_filename.setIndexed(True)
+                    field_filename.setStored(True)
+                    field_filename.setTokenized(False)
+                    field_filename.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS)        
+                    doc.add(Field("filename", filename, field_filename))
+
+                    field_path = FieldType()
+                    field_path.setIndexed(True)
+                    field_path.setStored(False)
+                    field_path.setTokenized(True)
+                    field_path.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS_AND_POSITIONS)
+                    doc.add(Field("path", root, field_path))
                     
-                    # TODO: Add extracted properties to doc object
+                    field_title = FieldType()
+                    field_title.setIndexed(True)
+                    field_title.setStored(True)
+                    field_title.setTokenized(True)
+                    field_title.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS_AND_POSITIONS)        
+                    doc.add(Field("title", html_doc.title, field_title))
+
+                    if html_doc.has_description():
+                        field_description = FieldType()
+                        field_description.setIndexed(True)
+                        field_description.setStored(True)
+                        field_description.setTokenized(True)
+                        field_description.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS_AND_POSITIONS)        
+                        doc.add(Field("description", html_doc.description, field_description))
+
+                    field_month = FieldType()
+                    field_month.setIndexed(True)
+                    field_month.setStored(True)
+                    field_month.setTokenized(False)
+                    field_month.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS)        
+                    doc.add(Field("month", html_doc.month, field_month))
+
+                    field_year = FieldType()
+                    field_year.setIndexed(True)
+                    field_year.setStored(True)
+                    field_year.setTokenized(False)
+                    field_year.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS)        
+                    doc.add(Field("year", html_doc.year, field_year))
+
+                    if html_doc.has_authors():
+                        field_author = FieldType()
+                        field_author.setIndexed(True)
+                        field_author.setStored(True)
+                        field_author.setTokenized(True)
+                        field_author.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS) 
+                        for author in html_doc.authors:
+                            doc.add(Field("author", author, field_author))
+
+                    if html_doc.has_keywords():
+                        field_keyword = FieldType()
+                        field_keyword.setIndexed(True)
+                        field_keyword.setStored(True)
+                        field_keyword.setTokenized(True)
+                        field_keyword.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS) 
+                        for keyword in html_doc.keywords:
+                            doc.add(Field("keyword", keyword, field_keyword))
+
+                    field_timestamp = FieldType()
+                    field_timestamp.setIndexed(False)
+                    field_timestamp.setStored(True)
+                    field_timestamp.setTokenized(False)
+                    field_timestamp.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS)        
+                    doc.add(Field("timestamp", html_doc.timestamp, field_timestamp))
 
                     if len(contents) > 0:
-                        doc.add(Field("contents", contents, t2))
+                        field_source = FieldType()
+                        field_source.setIndexed(True)
+                        field_source.setStored(False)
+                        field_source.setTokenized(True)
+                        field_source.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS_AND_POSITIONS) 
+                        doc.add(Field("contents", contents, field_source))
                     else:
                         print "warning: no content in %s" % filename
                     writer.addDocument(doc)

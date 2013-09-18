@@ -13,9 +13,6 @@ from org.apache.lucene.search import IndexSearcher
 from org.apache.lucene.util import Version
 import org.apache.lucene.search.similarities as similarities
 
-"""
-
-"""
 def run(searcher, analyzer):
     while True:
         print
