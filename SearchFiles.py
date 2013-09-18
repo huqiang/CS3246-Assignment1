@@ -48,18 +48,17 @@ def results_comparison(searcher, analyzer):
     query_data = QueryFileParser.parse_query_file()
     relevance_data = RelevanceFileParser.parse_relevance_file()
     for query in query_data:
-        print query
         qid = query['query_no']
         relevant_docs = relevance_data[qid]
-        query = QueryParser(Version.LUCENE_CURRENT, "content", analyzer).parse(query['query_content'])
+        query = QueryParser(Version.LUCENE_CURRENT, "contents", analyzer).parse(query['query_content'])
         hits = searcher.search(query, 50).scoreDocs
         accurate_hits = 0
         for hit in hits:
             doc = searcher.doc(hit.doc)
             if doc.get("filename")[:4] in relevant_docs:
                 accurate_hits += 1
-        print qid + ': ' + str(accurate_hits / float(len(relevant_docs)))
-
+        
+        print qid + ': ' + str(accurate_hits) + '/' + str(len(relevant_docs))
 
 if __name__ == '__main__':
     lucene.initVM(vmargs=['-Djava.awt.headless=true'])
@@ -70,6 +69,6 @@ if __name__ == '__main__':
     searcher.setSimilarity(similarities.BM25Similarity())
     #Available similarity: BM25Similarity, MultiSimilarity, PerFieldSimilarityWrapper, SimilarityBase, TFIDFSimilarity
     analyzer = StandardAnalyzer(Version.LUCENE_CURRENT)
-    perform_user_query(searcher, analyzer)
-    # results_comparison(searcher, analyzer)
+    # perform_user_query(searcher, analyzer)
+    results_comparison(searcher, analyzer)
     del searcher
