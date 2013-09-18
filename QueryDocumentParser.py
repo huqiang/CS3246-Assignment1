@@ -10,25 +10,21 @@ class QueryDocumentParser(HTMLParser):
         self.current_query = ''
 
     def handle_starttag(self, tag, attrs):
-        print "Encountered a start tag:", tag
         if tag == 'doc':
             self.query_content_started = True
         elif tag == 'docno' and self.query_content_started:
             self.query_started = True
 
     def handle_endtag(self, tag):
-        print "Encountered an end tag :", tag
         if tag == 'doc':
             self.query_content_started = False
         elif tag == 'docno':
             self.query_started = False
 
     def handle_data(self, data):
-        print 'data: ', data
         if self.query_content_started:
             if self.query_started:
                 self.current_query_num = data
-                print 'current qn:', self.current_query_num
             elif self.current_query_num and len(self.current_query_num) != 0:
                 self.contents.append({'query_no': self.current_query_num.strip(), 'query_content': data.replace('\r', '').replace('\n', ' ').strip()})
                 self.current_query_num = ''

@@ -12,8 +12,11 @@ from org.apache.lucene.store import SimpleFSDirectory
 from org.apache.lucene.search import IndexSearcher
 from org.apache.lucene.util import Version
 import org.apache.lucene.search.similarities as similarities
+from HTMLDocumentParser import HTMLDocumentParser
+import QueryFileParser
+import RelevanceFileParser
 
-def run(searcher, analyzer):
+def perform_user_query(searcher, analyzer):
     while True:
         print
         print "Hit enter with no input to quit."
@@ -24,7 +27,7 @@ def run(searcher, analyzer):
         print
         print "Searching for: ", command
         query = QueryParser(Version.LUCENE_CURRENT, "title", analyzer).parse(command)
-        hits = searcher.search(query, 10).scoreDocs
+        hits = searcher.search(query, 50).scoreDocs
         print "%s total matching documents." % len(hits)
 
         rank = 1
@@ -41,6 +44,21 @@ def run(searcher, analyzer):
                 print rank, doc.get("filename"), doc.get("title")
             rank += 1
 
+def results_comparison(searcher, analyzer):
+    query_data = QueryFileParser.parse_query_file()
+    relevance_data = RelevanceFileParser.parse_relevance_file()
+    for query in query_data:
+        print query
+        qid = query['query_no']
+        relevant_docs = relevance_data[qid]
+        query = QueryParser(Version.LUCENE_CURRENT, "content", analyzer).parse(query['query_content'])
+        hits = searcher.search(query, 50).scoreDocs
+        accurate_hits = 0
+        for hit in hits:
+            doc = searcher.doc(hit.doc)
+            if doc.get("filename")[:4] in relevant_docs:
+                accurate_hits += 1
+        print qid + ': ' + str(accurate_hits / float(len(relevant_docs)))
 
 
 if __name__ == '__main__':
@@ -52,5 +70,6 @@ if __name__ == '__main__':
     searcher.setSimilarity(similarities.BM25Similarity())
     #Available similarity: BM25Similarity, MultiSimilarity, PerFieldSimilarityWrapper, SimilarityBase, TFIDFSimilarity
     analyzer = StandardAnalyzer(Version.LUCENE_CURRENT)
-    run(searcher, analyzer)
+    # perform_user_query(searcher, analyzer)
+    results_comparison(searcher, analyzer)
     del searcher

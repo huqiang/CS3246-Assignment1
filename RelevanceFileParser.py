@@ -1,7 +1,9 @@
+RELEVANCE_FILE = "CS3246Project1_relevance.txt"
+
 def parse_relevance_file():
 	relevance = {}
 
-	with open('CS3246Project1_relevance.txt', 'r') as file:
+	with open(RELEVANCE_FILE, 'r') as file:
 		for line in file:
 			items = line.split(' ')
 			if items[0] not in relevance:
@@ -11,7 +13,7 @@ def parse_relevance_file():
 	return relevance
 
 '''
-Parsed relevance results:
+Parsed relevance file results:
 
 {'q1': ['1043', '1188', '1306', '1358', '1396', '1491', '1923', '2246', '2316', '2527', '2699', '2710', '2715', '2716', '2906', '2923', '2956', '3073', '3150'], 
 'q3': ['0115', '1223', '1231', '1551', '1625', '1795', '1807', '1947', '2495', '2579', '2897'], 
