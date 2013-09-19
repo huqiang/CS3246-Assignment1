@@ -82,8 +82,8 @@ def RF_new_query(searcher, analyzer, IDs):
     new_query = set()
     for id in IDs:
         doc          = searcher.doc(id)
-        description  = doc.get("description")
-        query        = QueryParser(Version.LUCENE_CURRENT, "contents", analyzer).parse(description)
+        contents     = doc.get("contents")
+        query        = QueryParser(Version.LUCENE_CURRENT, "contents", analyzer).parse(contents)
         keywords     = query.toString().split("contents:")
         keywords_set = set()
         for k in keywords:
