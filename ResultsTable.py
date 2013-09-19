@@ -68,9 +68,8 @@ class ResultsTable(Frame):
 
     def get_checked_results(self):
         checked_docs = []
-        print self._checkbox_states
         for i in range(1, self._rows):
             if self._checkbox_states[i-1].get() == 1:
                 checked_docs.append(self._widgets[i][1].cget('text'))
-        print checked_docs
+        # format of return value: [u'1961', u'2862']
         return checked_docs

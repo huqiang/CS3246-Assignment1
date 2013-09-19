@@ -58,7 +58,7 @@ def perform_user_query(searcher, analyzer):
         v.set('')
 
     def record_relevant_results():
-        tb.get_checked_results()
+        relevant_docs_ids = tb.get_checked_results() # do something with returned list of relevant docs
 
     w = Label(root, text="Enter your search terms in the box below")
     w.pack()
@@ -82,6 +82,26 @@ def perform_user_query(searcher, analyzer):
     rf.pack()
 
     root.mainloop()
+
+def form_new_query_from_rf(searcher, analyzer, relevant_doc_ids):
+    firstSet  = True
+    new_query = set()
+    for id in relevant_doc_ids:
+        doc          = searcher.doc(id)
+        contents     = doc.get("contents")
+        query        = QueryParser(Version.LUCENE_CURRENT, "contents", analyzer).parse(contents)
+        keywords     = query.toString().split("contents:")
+        keywords_set = set()
+        for k in keywords:
+            if k.strip() != "":
+                keywords_set.add(k)
+        if firstSet:
+            new_query = set(keywords_set)
+        else:
+            new_query = new_query & set(keywords_set)
+            firstSet  = False
+        return " ".join(new_query)
+
 
 def results_comparison(searcher, analyzer, query_file):
     query_data = QueryFileParser.parse_query_file(query_file)
