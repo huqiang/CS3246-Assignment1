@@ -19,8 +19,7 @@ from HTMLDocumentParser import HTMLDocumentParser
 from MyAnalyzer import MyAnalyzer
 
 class Indexer(object):
-    """Usage:   python IndexFiles <doc_directory>
-    """
+    # Usage:   python IndexFiles <doc_directory>
 
     def __init__(self, fileRoot, storeDir, analyzer):
 
