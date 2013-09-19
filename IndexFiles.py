@@ -16,6 +16,7 @@ import org.apache.lucene.search.similarities as similarities
 
 from HTMLDocument import HTMLDocument
 from HTMLDocumentParser import HTMLDocumentParser
+from MyAnalyzer import MyAnalyzer
 
 class Indexer(object):
     """Usage:   python IndexFiles <doc_directory>
@@ -163,7 +164,7 @@ if __name__ == '__main__':
     try:
         base_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
         Indexer(sys.argv[1], os.path.join(base_dir, INDEX_DIR),
-                   StandardAnalyzer(Version.LUCENE_CURRENT))
+                   MyAnalyzer(Version.LUCENE_CURRENT))
         end = datetime.now()
         print end - start
     except Exception, e:
