@@ -25,7 +25,7 @@ def perform_user_query(searcher, analyzer):
         search_terms = e.get()
         if len(search_terms.strip()) > 0:
             print "Searching for: ", search_terms
-            query = QueryParser(Version.LUCENE_CURRENT, "title", analyzer).parse(search_terms)
+            query = QueryParser(Version.LUCENE_CURRENT, "contents", analyzer).parse(search_terms)
             hits = searcher.search(query, 15).scoreDocs
             print "%s total matching documents." % len(hits)
 
@@ -122,3 +122,4 @@ if __name__ == '__main__':
         perform_user_query(searcher, analyzer)
     else:
         results_comparison(searcher, analyzer, sys.argv[1])
+    del searcher
