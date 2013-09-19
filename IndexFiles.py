@@ -74,7 +74,7 @@ class Indexer(object):
                     field_filename.setStored(True)
                     field_filename.setTokenized(False)
                     field_filename.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS)        
-                    doc.add(Field("filename", filename, field_filename))
+                    doc.add(Field("filename", filename.replace('.html', ''), field_filename))
 
                     field_path = FieldType()
                     field_path.setIndexed(True)
