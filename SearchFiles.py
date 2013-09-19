@@ -77,6 +77,26 @@ def perform_user_query(searcher, analyzer):
     
     root.mainloop()
 
+def RF_new_query(searcher, analyzer, IDs):
+    firstSet  = True
+    new_query = set()
+    for id in IDs:
+        doc          = searcher.doc(id)
+        description  = doc.get("description")
+        query        = QueryParser(Version.LUCENE_CURRENT, "contents", analyzer).parse(description)
+        keywords     = query.toString().split("contents:")
+        keywords_set = set()
+        for k in keywords:
+            if k.strip() != "":
+                keywords_set.add(k)
+        if firstSet:
+            new_query = set(keywords_set)
+        else:
+            new_query = new_query & set(keywords_set)
+            firstSet  = False
+        return " ".join(new_query)
+
+
 def results_comparison(searcher, analyzer, query_file):
     query_data = QueryFileParser.parse_query_file(query_file)
     relevance_data = RelevanceFileParser.parse_relevance_file()
@@ -91,8 +111,8 @@ def results_comparison(searcher, analyzer, query_file):
             if doc.get("filename").replace('html', '') in relevant_docs:
                 accurate_hits += 1
         print qid
-        print 'Recall: ' + str(round(float(accurate_hits)/len(relevant_docs), 6))
-        print 'Precision: ' + str(round(float(accurate_hits)/len(hits), 6))
+        print 'Recall: \t' + str(round(float(accurate_hits)/len(relevant_docs), 6))
+        print 'Precision: \t' + str(round(float(accurate_hits)/len(hits), 6))
         print
 
 def search_query_from_file(searcher, analyzer, query_file):
