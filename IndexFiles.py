@@ -51,7 +51,8 @@ class Indexer(object):
                     file = open(path)
                     contents = unicode(file.read(), 'iso-8859-1')
                     doc_parser.feed(contents)
-                    html_doc = HTMLDocument(doc_parser.contents)
+                    contents = doc_parser.contents
+                    html_doc = HTMLDocument(contents)
 
                     flag = False
                     if flag:
@@ -142,7 +143,7 @@ class Indexer(object):
                     if len(contents) > 0:
                         field_source = FieldType()
                         field_source.setIndexed(True)
-                        field_source.setStored(False)
+                        field_source.setStored(True)
                         field_source.setTokenized(True)
                         field_source.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS_AND_POSITIONS) 
                         doc.add(Field("contents", contents, field_source))
