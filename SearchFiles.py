@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 INDEX_DIR = "IndexFiles.index"
+MAX_NUMBER_OF_SEARCH_RESULTS = 15
 
 import sys, os, lucene
 from Tkinter import *
@@ -26,7 +27,7 @@ def perform_user_query(searcher, analyzer):
         if len(search_terms.strip()) > 0:
             print "Searching for: ", search_terms
             query = QueryParser(Version.LUCENE_CURRENT, "contents", analyzer).parse(search_terms)
-            hits = searcher.search(query, 15).scoreDocs
+            hits = searcher.search(query, MAX_NUMBER_OF_SEARCH_RESULTS).scoreDocs
             print "%s total matching documents." % len(hits)
 
             rank = 1
@@ -70,7 +71,7 @@ def perform_user_query(searcher, analyzer):
     c = Button(root, text="Clear", width=10, command=clear)
     c.pack()
 
-    tb = ResultsTable(root, 16, 5)
+    tb = ResultsTable(root, MAX_NUMBER_OF_SEARCH_RESULTS + 1, 5)
     tb.pack(side="top", fill="x")
     tb.reset_table()
     
