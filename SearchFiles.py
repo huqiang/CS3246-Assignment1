@@ -15,6 +15,7 @@ import org.apache.lucene.search.similarities as similarities
 from HTMLDocumentParser import HTMLDocumentParser
 import QueryFileParser
 import RelevanceFileParser
+from MyAnalyzer import MyAnalyzer
 
 def perform_user_query(searcher, analyzer):
     while True:
@@ -26,7 +27,7 @@ def perform_user_query(searcher, analyzer):
 
         print
         print "Searching for: ", command
-        query = QueryParser(Version.LUCENE_CURRENT, "title", analyzer).parse(command)
+        query = QueryParser(Version.LUCENE_CURRENT, "contents", analyzer).parse(command)
         hits = searcher.search(query, 50).scoreDocs
         print "%s total matching documents." % len(hits)
 
@@ -57,8 +58,10 @@ def results_comparison(searcher, analyzer, query_file):
             doc = searcher.doc(hit.doc)
             if doc.get("filename")[:4] in relevant_docs:
                 accurate_hits += 1
-        
+        print "Recall" 
         print qid + ': ' + str(accurate_hits) + '/' + str(len(relevant_docs))
+        print "Precision" 
+        print qid + ': ' + str(accurate_hits) + '/' + str(len(hits))
 
 def search_query_from_file(searcher, analyzer, query_file):
     queries = QueryFileParser.parse_query_file(query_file)
@@ -82,7 +85,8 @@ if __name__ == '__main__':
     
     searcher.setSimilarity(similarities.BM25Similarity())
     #Available similarity: BM25Similarity, MultiSimilarity, PerFieldSimilarityWrapper, SimilarityBase, TFIDFSimilarity
-    analyzer = StandardAnalyzer(Version.LUCENE_CURRENT)
+    # analyzer = StandardAnalyzer(Version.LUCENE_CURRENT)
+    analyzer = MyAnalyzer(Version.LUCENE_CURRENT)
     if len(sys.argv) < 2:
         perform_user_query(searcher, analyzer)
     else:
