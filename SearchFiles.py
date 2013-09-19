@@ -89,10 +89,10 @@ def results_comparison(searcher, analyzer, query_file):
             doc = searcher.doc(hit.doc)
             if doc.get("filename").replace('html', '') in relevant_docs:
                 accurate_hits += 1
-        print "Recall" 
-        print qid + ': ' + str(accurate_hits) + '/' + str(len(relevant_docs))
-        print "Precision" 
-        print qid + ': ' + str(accurate_hits) + '/' + str(len(hits))
+        print qid
+        print 'Recall: ' + str(round(float(accurate_hits)/len(relevant_docs), 6))
+        print 'Precision: ' + str(round(float(accurate_hits)/len(hits), 6))
+        print
 
 def search_query_from_file(searcher, analyzer, query_file):
     queries = QueryFileParser.parse_query_file(query_file)
