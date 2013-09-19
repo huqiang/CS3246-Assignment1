@@ -14,6 +14,7 @@ class ResultsTable(Frame):
         self._widgets = []
         self._rows = rows
         self._columns = columns
+        self.results_lucene_id_list = []
         self._checkbox_states = []
         for row in range(rows):
             current_row = []
@@ -65,11 +66,13 @@ class ResultsTable(Frame):
         for i in range(1, self._rows):
             self._checkbox_states[i-1].set(0)
         self.init_table_headers()
+        self.results_lucene_id_list = []
 
     def get_checked_results(self):
         checked_docs = []
         for i in range(1, self._rows):
             if self._checkbox_states[i-1].get() == 1:
-                checked_docs.append(self._widgets[i][1].cget('text'))
+                checked_docs.append(self.results_lucene_id_list[i-1])
         # format of return value: [u'1961', u'2862']
+        print 'Relevant doc ids: ' + str(checked_docs)
         return checked_docs

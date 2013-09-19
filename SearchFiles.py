@@ -33,6 +33,7 @@ def perform_user_query(searcher, analyzer):
             rank = 1
             results_list = []
             for hit in hits:
+                print hit.doc
                 doc = searcher.doc(hit.doc)
 
                 results_list.append([rank, doc.get('filename'), doc.get('title'), doc.get("description")[:200], None])
@@ -48,6 +49,7 @@ def perform_user_query(searcher, analyzer):
                     print rank, doc.get("filename"), doc.get("title")
                 rank += 1
             tb.reset_table()
+            tb.results_lucene_id_list = [hit.doc for hit in hits]
             for i in range(len(results_list)):
                 for j in range(len(results_list[i])):
                     tb.set(j, i+1, results_list[i][j])
