@@ -57,6 +57,9 @@ def perform_user_query(searcher, analyzer):
     def clear():
         v.set('')
 
+    def record_relevant_results():
+        tb.get_checked_results()
+
     w = Label(root, text="Enter your search terms in the box below")
     w.pack()
 
@@ -75,6 +78,9 @@ def perform_user_query(searcher, analyzer):
     tb.pack(side="top", fill="x")
     tb.reset_table()
     
+    rf = Button(root, text="Record Relevant Results", width=10, command=record_relevant_results)
+    rf.pack()
+
     root.mainloop()
 
 def results_comparison(searcher, analyzer, query_file):
@@ -83,7 +89,7 @@ def results_comparison(searcher, analyzer, query_file):
     for query in query_data:
         qid = query['query_no']
         relevant_docs = relevance_data[qid]
-        query = QueryParser(Version.LUCENE_CURRENT, "contents", analyzer).parse(query['query_content'])
+        query = QueryParser(Version.LUCENE_CURRENT, "keyword", analyzer).parse(query['query_content'])
         hits = searcher.search(query, 50).scoreDocs
         accurate_hits = 0
         for hit in hits:
@@ -92,21 +98,11 @@ def results_comparison(searcher, analyzer, query_file):
                 accurate_hits += 1
         print qid
         print 'Recall: ' + str(round(float(accurate_hits)/len(relevant_docs), 6))
-        print 'Precision: ' + str(round(float(accurate_hits)/len(hits), 6))
+        if len(hits) != 0:
+            print 'Precision: ' + str(round(float(accurate_hits)/len(hits), 6))
+        else:
+            print 'Precision: 0.0'
         print
-
-def search_query_from_file(searcher, analyzer, query_file):
-    queries = QueryFileParser.parse_query_file(query_file)
-    for Q in queries:
-        print Q['query_no'],"  ", Q['query_content']
-        query = QueryParser(Version.LUCENE_CURRENT, "contents",
-                            analyzer).parse(Q['query_content'])
-        scoreDocs = searcher.search(query, 10).scoreDocs
-        print "%s total matching documents." % len(scoreDocs)
-
-        for scoreDoc in scoreDocs:
-            doc = searcher.doc(scoreDoc.doc)
-            print Q['query_no'],'\t', doc.get("name"), "\t", scoreDoc.score
 
 if __name__ == '__main__':
     lucene.initVM(vmargs=['-Djava.awt.headless=true'])

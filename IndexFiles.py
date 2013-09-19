@@ -90,7 +90,6 @@ class Indexer(object):
                     field_title.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS_AND_POSITIONS)        
                     doc.add(Field("title", html_doc.title, field_title))
 
-                    
                     field_description = FieldType()
                     if html_doc.has_description():
                         field_description.setIndexed(True)

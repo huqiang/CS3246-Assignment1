@@ -14,6 +14,7 @@ class ResultsTable(Frame):
         self._widgets = []
         self._rows = rows
         self._columns = columns
+        self._checkbox_states = []
         for row in range(rows):
             current_row = []
             # for column in range(columns):
@@ -34,7 +35,13 @@ class ResultsTable(Frame):
             synopsis_label.grid(row=row, column=3, sticky="nsew", padx=PAD_X, pady=PAD_Y, ipadx=IPAD_X, ipady=IPAD_Y)
             current_row.append(synopsis_label)
 
-            relevance_label = Label(self, text="", borderwidth=BORDER_WIDTH, width=10)
+            if row == 0:
+                relevance_label = Label(self, text="", borderwidth=BORDER_WIDTH, width=10)
+            else:
+                cb_state = IntVar()
+                cb_state.set(0)
+                relevance_label = Checkbutton(self, variable=cb_state)
+                self._checkbox_states.append(cb_state)
             relevance_label.grid(row=row, column=4, sticky="nsew", padx=PAD_X, pady=PAD_Y, ipadx=IPAD_X, ipady=IPAD_Y)
             current_row.append(relevance_label)
 
@@ -55,4 +62,15 @@ class ResultsTable(Frame):
         for i in range(self._rows):
             for j in range(self._columns):
                 self.set(j, i, '')
+        for i in range(1, self._rows):
+            self._checkbox_states[i-1].set(0)
         self.init_table_headers()
+
+    def get_checked_results(self):
+        checked_docs = []
+        print self._checkbox_states
+        for i in range(1, self._rows):
+            if self._checkbox_states[i-1].get() == 1:
+                checked_docs.append(self._widgets[i][1].cget('text'))
+        print checked_docs
+        return checked_docs
