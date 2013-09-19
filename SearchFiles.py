@@ -128,23 +128,63 @@ class FileSearcher(object):
     def results_comparison(self, searcher, analyzer, query_file):
         query_data = QueryFileParser.parse_query_file(query_file)
         relevance_data = RelevanceFileParser.parse_relevance_file()
-        for query in query_data:
-            qid = query['query_no']
+
+        total_FB = 0
+        total_recall = 0
+        total_precision = 0
+
+        for q in query_data:
+            qid = q['query_no']
             relevant_docs = relevance_data[qid]
-            query = QueryParser(Version.LUCENE_CURRENT, "keyword", analyzer).parse(query['query_content'])
-            hits = searcher.search(query, 50).scoreDocs
+
+            query = QueryParser(Version.LUCENE_CURRENT, "title", analyzer).parse(q['query_content'])
+            title_hits = set(searcher.search(query, 50).scoreDocs)            
+            title_set = set([hit.doc for hit in title_hits])
+
+            query = QueryParser(Version.LUCENE_CURRENT, "description", analyzer).parse(q['query_content'])
+            description_hits = set(searcher.search(query, 50).scoreDocs)            
+            description_set = set([hit.doc for hit in description_hits])
+
+            query = QueryParser(Version.LUCENE_CURRENT, "keyword", analyzer).parse(q['query_content'])
+            keyword_hits = set(searcher.search(query, 50).scoreDocs)
+            keyword_set = set([hit.doc for hit in keyword_hits])
+
+            query = QueryParser(Version.LUCENE_CURRENT, "contents", analyzer).parse(q['query_content'])
+            content_hits = set(searcher.search(query, 50).scoreDocs)            
+            content_set = set([hit.doc for hit in content_hits])
+
+            hits = title_set & content_set
+
+            # print hits
+
             accurate_hits = 0
             for hit in hits:
-                doc = searcher.doc(hit.doc)
-                if doc.get("filename").replace('html', '') in relevant_docs:
+                doc = searcher.doc(hit)
+                if doc.get("filename") in relevant_docs:
                     accurate_hits += 1
-            print qid
-            print 'Recall: ' + str(round(float(accurate_hits)/len(relevant_docs), 6))
-            if len(hits) != 0:
-                print 'Precision: ' + str(round(float(accurate_hits)/len(hits), 6))
+            
+            recall = float(accurate_hits)/len(relevant_docs)
+            if len(hits) == 0:
+                precision = 0
             else:
-                print 'Precision: 0.0'
-            print
+                precision = float(accurate_hits)/len(hits)
+            if precision + recall != 0:
+                FB = 2 * precision * recall / (precision + recall)
+            else:
+                FB = 0.0
+            
+            total_recall += recall
+            total_precision += precision
+            total_FB += FB
+
+            print '%3s Recall: %.6f  Precision: %.6f  FB: %.6f' % (qid, recall, precision, FB)
+
+        query_data_length = len(query_data)
+        avg_recall = total_recall/query_data_length
+        avg_precision = total_precision/query_data_length
+        avg_FB = total_FB/query_data_length
+
+        print 'Avg Recall: %.6f  Avg Precision: %.6f Avg FB: %.6f' % (avg_recall, avg_precision, avg_FB)
 
 if __name__ == '__main__':
     lucene.initVM(vmargs=['-Djava.awt.headless=true'])

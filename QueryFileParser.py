@@ -1,7 +1,5 @@
 from QueryDocumentParser import QueryDocumentParser
 
-QUERY_FILE = "CS3246Project1_query.txt"
-
 def parse_query_file(query_file):
 
 	file = open(query_file)
