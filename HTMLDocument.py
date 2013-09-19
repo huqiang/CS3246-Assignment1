@@ -73,9 +73,3 @@ class HTMLDocument(object):
 
 	def has_keywords(self):
 		return len(self.keywords) > 0
-
-
-
-
-
-
