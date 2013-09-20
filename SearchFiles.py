@@ -47,7 +47,7 @@ class FileSearcher(object):
         def record_relevant_results():
             relevant_docs_ids = tb.get_checked_results() # do something with returned list of relevant docs
             new_query = self.form_new_query_from_rf(relevant_docs_ids)
-            hits = self.perform_search(self.current_query_str+" "+new_query)
+            hits = self.perform_search(self.current_query_str + " " + new_query)
             self.update_table(tb, hits)
     
         w = Label(root, text="Enter your search terms in the box below")
@@ -68,7 +68,7 @@ class FileSearcher(object):
         tb.pack(side="top", fill="x")
         tb.reset_table()
         
-        rf = Button(root, text="Record Relevant Results", width=10, command=record_relevant_results)
+        rf = Button(root, text="Record Relevance Feedback", width=30, command=record_relevant_results)
         rf.pack()
     
         root.mainloop()
@@ -95,31 +95,53 @@ class FileSearcher(object):
     def perform_search(self, query_str):
         query_str = re.sub('[/\*&^%$#@:"()<>?\'`]', " ", query_str).strip()
         self.current_query_str = query_str
-        print "Searching for: ", query_str
-        query = QueryParser(Version.LUCENE_CURRENT, "contents", self.analyzer).parse(query_str)
-        hits = searcher.search(query, MAX_NUMBER_OF_SEARCH_RESULTS).scoreDocs
-        print "%s total matching documents." % len(hits)
-        return hits
+        # print "Searching for: ", query_str
+        query = QueryParser(Version.LUCENE_CURRENT, "title", analyzer).parse(query_str)
+        title_hits = searcher.search(query, 50).scoreDocs
+        title_set = set([hit.doc for hit in title_hits])
+        if len(title_hits) > 0:
+            max_title_score = max([hit.score for hit in title_hits])
+
+        query = QueryParser(Version.LUCENE_CURRENT, "contents", analyzer).parse(query_str)
+        content_hits = searcher.search(query, 50).scoreDocs         
+        content_set = set([hit.doc for hit in content_hits])
+        if len(content_hits) > 0:
+            max_content_score = max([hit.score for hit in content_hits])
+
+        hits = title_set & content_set
+
+        def calculate_new_score(hit):
+            score_doc = {'doc': hit}
+            title_doc = filter(lambda x: x.doc == hit, title_hits)
+            content_doc = filter(lambda x: x.doc == hit, content_hits)
+            new_score = 0.5 * (title_doc[0].score/max_title_score) + 0.5 * (content_doc[0].score/max_content_score)
+            score_doc['score'] = new_score
+            return score_doc
+
+        new_hits_with_scores = [calculate_new_score(hit) for hit in hits]
+        new_hits_with_scores.sort(key=lambda x: x['score'], reverse=True)
+        sorted_hits = [x['doc'] for x in new_hits_with_scores]
+        # print "%s total matching documents." % len(sorted_hits)
+        return sorted_hits
 
     def update_table(self, tb, hits):
         rank = 1
         results_list = []
         for hit in hits:
-            print hit.doc
-            doc = searcher.doc(hit.doc)
+            print hit
+            doc = searcher.doc(hit)
             results_list.append([rank, doc.get('filename'), doc.get('title'), doc.get("description")[:200], None])
             detailed_format = True
             if detailed_format:
                 print 'Rank: ', rank
                 print 'File: ', doc.get("filename")
-                print 'Score: ', hit.score
                 print 'Title: ', doc.get("title")
                 print 'Synopsis: ', doc.get("description")[:200] + '...' , '\n'
             else:
                 print rank, doc.get("filename"), doc.get("title")
             rank += 1
         tb.reset_table()
-        tb.results_lucene_id_list = [hit.doc for hit in hits]
+        tb.results_lucene_id_list = hits
         for i in range(len(results_list)):
             for j in range(len(results_list[i])):
                 tb.set(j, i+1, results_list[i][j])
@@ -137,23 +159,7 @@ class FileSearcher(object):
             qid = q['query_no']
             relevant_docs = relevance_data[qid]
 
-            query = QueryParser(Version.LUCENE_CURRENT, "title", analyzer).parse(q['query_content'])
-            title_hits = set(searcher.search(query, 50).scoreDocs)            
-            title_set = set([hit.doc for hit in title_hits])
-
-            query = QueryParser(Version.LUCENE_CURRENT, "description", analyzer).parse(q['query_content'])
-            description_hits = set(searcher.search(query, 50).scoreDocs)            
-            description_set = set([hit.doc for hit in description_hits])
-
-            query = QueryParser(Version.LUCENE_CURRENT, "keyword", analyzer).parse(q['query_content'])
-            keyword_hits = set(searcher.search(query, 50).scoreDocs)
-            keyword_set = set([hit.doc for hit in keyword_hits])
-
-            query = QueryParser(Version.LUCENE_CURRENT, "contents", analyzer).parse(q['query_content'])
-            content_hits = set(searcher.search(query, 50).scoreDocs)            
-            content_set = set([hit.doc for hit in content_hits])
-
-            hits = title_set & content_set
+            hits = self.perform_search(q['query_content'])
 
             # print hits
 
