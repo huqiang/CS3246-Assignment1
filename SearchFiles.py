@@ -122,7 +122,7 @@ class FileSearcher(object):
         new_hits_with_scores.sort(key=lambda x: x['score'], reverse=True)
         sorted_hits = [x['doc'] for x in new_hits_with_scores]
         # print "%s total matching documents." % len(sorted_hits)
-        return sorted_hits
+        return sorted_hits[:15]
 
     def update_table(self, tb, hits):
         rank = 1
